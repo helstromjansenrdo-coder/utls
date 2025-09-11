@@ -15,6 +15,7 @@ import (
 	"math"
 	"math/big"
 	"math/rand"
+	"slices"
 	"sort"
 	"strconv"
 
@@ -3273,6 +3274,33 @@ func (uconn *UConn) applyPresetByID(id ClientHelloID) (err error) {
 				}
 			}
 
+			if uconn.WithDisableHttp3 {
+				for _, ext := range spec.Extensions {
+					switch ext.(type) {
+					case *ALPNExtension:
+						alpnExt, ok := ext.(*ALPNExtension)
+						if !ok {
+							return fmt.Errorf("extension is not of type *ALPNExtension")
+						}
+
+						if slices.Contains(alpnExt.AlpnProtocols, "h3") {
+							alpnExt.AlpnProtocols = removeFromSlice(alpnExt.AlpnProtocols, "h3")
+						}
+					case *ApplicationSettingsExtension:
+					case *ApplicationSettingsExtensionNew:
+						alpsExt, ok := ext.(*ApplicationSettingsExtensionNew)
+						if !ok {
+							return fmt.Errorf("extension is not of type *ApplicationSettingsExtensionNew")
+						}
+
+						if slices.Contains(alpsExt.SupportedProtocols, "h3") {
+							alpsExt.SupportedProtocols = removeFromSlice(alpsExt.SupportedProtocols, "h3")
+						}
+					}
+
+				}
+			}
+
 			if uconn.WithRandomTLSExtensionOrder {
 				spec.Extensions = ShuffleChromeTLSExtensions(spec.Extensions)
 			}
@@ -3284,6 +3312,18 @@ func (uconn *UConn) applyPresetByID(id ClientHelloID) (err error) {
 	}
 
 	return nil
+}
+
+func removeFromSlice(orig []string, s string) []string {
+	var filtered []string
+	for _, v := range orig {
+		if v == s {
+			continue
+		}
+		filtered = append(filtered, v)
+	}
+
+	return filtered
 }
 
 // ApplyPreset should only be used in conjunction with HelloCustom to apply custom specs.
