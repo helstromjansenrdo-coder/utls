@@ -752,10 +752,10 @@ var DefaultWeights = Weights{
 	Extensions_Append_Reneg:                            0.75,
 	Extensions_Append_EMS:                              0.77,
 	FirstKeyShare_Set_CurveP256:                        0.25,
-	FirstKeyShare_Set_CurveP256:                        0.00, // legacy setting
-	KeyShare_Append_RandomGroups:                       0.50,
-	Extensions_Append_ALPS_Old:                         0.33,
-	Extensions_Append_ALPS:                             0.33,
+	//FirstKeyShare_Set_CurveP256:                        0.00, // legacy setting
+	KeyShare_Append_RandomGroups: 0.50,
+	Extensions_Append_ALPS_Old:   0.33,
+	Extensions_Append_ALPS:       0.33,
 }
 
 // based on spec's GreaseStyle, GREASE_PLACEHOLDER may be replaced by another GREASE value

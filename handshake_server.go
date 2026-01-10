@@ -19,8 +19,6 @@ import (
 	"time"
 
 	"github.com/bogdanfinn/utls/internal/byteorder"
-
-	circlSign "github.com/cloudflare/circl/sign"
 )
 
 // serverHandshakeState contains details of a server handshake in progress.
