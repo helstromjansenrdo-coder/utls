@@ -574,7 +574,7 @@ func (c *Conn) pickTLSVersion(serverHello *serverHelloMsg) error {
 	
 	if peerVersion == VersionTLS13_Facebook {
         // treat 0xfb1a as TLS 1.3 for the state machine
-        peerVersion = VersionTLS13
+        peerVersion = VersionTLS13_Facebook
     }
 
 	vers, ok := c.config.mutualVersion(roleClient, []uint16{peerVersion})
