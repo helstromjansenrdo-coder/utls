@@ -1220,6 +1220,10 @@ func (c *Config) supportedVersions(isClient bool) []uint16 {
 	fmt.Printf("supportedVersions_2: %s", versions)
 	fmt.Printf("supportedVersions_3: %s", supportedVersions)
 	for _, v := range supportedVersions {
+		if v == VersionTLS13_Facebook {
+			versions = append(versions, v)
+			continue
+		}
 		// [uTLS] SECTION BEGIN
 		// if fips140tls.Required() && !slices.Contains(defaultSupportedVersionsFIPS, v) {
 		// 	continue
