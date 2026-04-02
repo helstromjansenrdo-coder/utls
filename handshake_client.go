@@ -680,7 +680,7 @@ func (hs *clientHandshakeState) handshake() error {
 
 func (hs *clientHandshakeState) pickCipherSuite() error {
 	fmt.Printf("pickCipherSuite: %v\n", hs)
-	fmt.Printf("pickCipherSuite2: %v\n", [hs.hello.cipherSuites, hs.serverHello.cipherSuite])
+	fmt.Printf("pickCipherSuite2: %v, %v\n", hs.hello.cipherSuites, hs.serverHello.cipherSuite)
 	if hs.suite = mutualCipherSuite(hs.hello.cipherSuites, hs.serverHello.cipherSuite); hs.suite == nil {
 		hs.c.sendAlert(alertHandshakeFailure)
 		return errors.New("tls: server chose an unconfigured cipher suite")
