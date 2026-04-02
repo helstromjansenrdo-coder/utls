@@ -580,7 +580,7 @@ func (c *Conn) pickTLSVersion(serverHello *serverHelloMsg) error {
 	vers, ok := c.config.mutualVersion(roleClient, []uint16{peerVersion})
 	if !ok {
 		c.sendAlert(alertProtocolVersion)
-		return fmt.Errorf("tls: server selected unsupported protocol version %x", peerVersion)
+		return fmt.Errorf("tls: server selected unsupported protocol version %x d", peerVersion)
 	}
 
 	c.vers = vers
