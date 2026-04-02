@@ -1304,6 +1304,8 @@ func (c *Config) supportsCurve(version uint16, curve CurveID) bool {
 // versions of the peer. Priority is given to the peer preference order.
 func (c *Config) mutualVersion(isClient bool, peerVersions []uint16) (uint16, bool) {
 	supportedVersions := c.supportedVersions(isClient)
+	fmt.Sprintf("supportedVersions: %v", supportedVersions)
+	fmt.Sprintf("peerVersions: %v", peerVersions)
 	for _, peerVersion := range peerVersions {
 		for _, v := range supportedVersions {
 			if v == peerVersion {
