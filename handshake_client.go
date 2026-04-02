@@ -70,6 +70,16 @@ func (c *Conn) makeClientHello() (*clientHelloMsg, *keySharePrivateKeys, *echCli
 	if len(supportedVersions) == 0 {
 		return nil, nil, nil, errors.New("tls: no supported versions satisfy MinVersion and MaxVersion")
 	}
+	// Insert 0xfb1a after TLS 1.3 so hello.supportedVersions[0] stays 0x0304
+    for i, v := range supportedVersions {
+        if v == VersionTLS13 {
+            supportedVersions = append(
+                supportedVersions[:i+1],
+                append([]uint16{VersionTLS13_Facebook}, supportedVersions[i+1:]...)...,
+            )
+            break
+        }
+    }
 	maxVersion := config.maxSupportedVersion(roleClient)
 
 	hello := &clientHelloMsg{
@@ -143,7 +153,7 @@ func (c *Conn) makeClientHello() (*clientHelloMsg, *keySharePrivateKeys, *echCli
 	}
 
 	var keyShareKeys *keySharePrivateKeys
-	if hello.supportedVersions[0] == VersionTLS13 {
+	if hello.supportedVersions[0] == VersionTLS13 || hello.supportedVersions[0] == VersionTLS13_Facebook {
 		// Reset the list of ciphers when the client only supports TLS 1.3.
 		if len(hello.supportedVersions) == 1 {
 			hello.cipherSuites = nil
@@ -368,7 +378,7 @@ func (c *Conn) clientHandshake(ctx context.Context) (err error) {
 		return errors.New("tls: downgrade attempt detected, possibly due to a MitM attack or a broken middlebox")
 	}
 
-	if c.vers == VersionTLS13 {
+	if c.vers == VersionTLS13 || c.vers == VersionTLS13_Facebook {
 		hs := &clientHandshakeStateTLS13{
 			c:            c,
 			ctx:          ctx,
@@ -411,7 +421,7 @@ func (c *Conn) loadSession(hello *clientHelloMsg) (
 	// identities) and ECH requires and forces TLS 1.3.
 	hello.ticketSupported = true && !echInner
 
-	if hello.supportedVersions[0] == VersionTLS13 {
+	if hello.supportedVersions[0] == VersionTLS13 || hello.supportedVersions[0] == VersionTLS13_Facebook {
 		// Require DHE on resumption as it guarantees forward secrecy against
 		// compromise of the session ticket key. See RFC 8446, Section 4.2.9.
 		hello.pskModes = []uint8{pskModeDHE}
@@ -479,7 +489,7 @@ func (c *Conn) loadSession(hello *clientHelloMsg) (
 		// [UTLS SECTION END]
 	}
 
-	if session.version != VersionTLS13 {
+	if session.version != VersionTLS13 && session.version != VersionTLS13_Facebook {
 		// In TLS 1.2 the cipher suite must match the resumed session. Ensure we
 		// are still offering it.
 		if mutualCipherSuite(hello.cipherSuites, session.cipherSuite) == nil {
@@ -561,6 +571,11 @@ func (c *Conn) pickTLSVersion(serverHello *serverHelloMsg) error {
 	if serverHello.supportedVersion != 0 {
 		peerVersion = serverHello.supportedVersion
 	}
+	
+	if peerVersion == VersionTLS13_Facebook {
+        // treat 0xfb1a as TLS 1.3 for the state machine
+        peerVersion = VersionTLS13
+    }
 
 	vers, ok := c.config.mutualVersion(roleClient, []uint16{peerVersion})
 	if !ok {
