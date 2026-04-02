@@ -1217,7 +1217,7 @@ const roleServer = false
 
 func (c *Config) supportedVersions(isClient bool) []uint16 {
 	versions := make([]uint16, 0, len(supportedVersions))
-	fmt.Sprintf("versions: %s", versions)
+	fmt.Printf("supportedVersions_2: %s", versions)
 	for _, v := range supportedVersions {
 		// [uTLS] SECTION BEGIN
 		// if fips140tls.Required() && !slices.Contains(defaultSupportedVersionsFIPS, v) {
